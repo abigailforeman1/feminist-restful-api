@@ -17,6 +17,8 @@ mongoose.connect(
     console.log('Mongo is connected')
   })
 
+app.use(express.static(`${__dirname}/dist`))
+
 //* hook up the body parser middleware
 app.use(bodyParser.json())
 
@@ -25,5 +27,7 @@ app.use(logger)
 app.use(router)
 
 app.use('/api', router)
+
+app.use('/*', (req, res) => res.sendFile(`${__dirname}/dist/index.html`))
 
 app.listen(port, () => console.log(`Express is up and running on ${port}`))
