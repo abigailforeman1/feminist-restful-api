@@ -10,6 +10,27 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 })
 
+userSchema.virtual('createdFeminists', {
+  ref: 'Feminist',
+  localField: '_id',
+  foreignField: 'user'
+})
+
+userSchema.virtual('likedFeminists', {
+  ref: 'Feminist',
+  localField: '_id',
+  foreignField: 'likes.user'
+})
+
+userSchema
+  .set('toJSON', {
+    virtuals: true,
+    transform(doc, json) {
+      delete json.password
+      return json
+    }
+  })
+
 // our method to compare the stored hashed password with the one entered by the user to login
 userSchema.methods.validatePassword = function validatePassword(password) {
   return bcrypt.compareSync(password, this.password)

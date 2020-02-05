@@ -15,6 +15,11 @@ mongoose.connect(dbURI, { useNewUrlParser: true , useUnifiedTopology: true }, (e
           email: 'abi@email',
           password: 'pass',
           passwordConfirmation: 'pass'
+        }, {
+          username: 'yolanda',
+          email: 'yo@email',
+          password: 'pass',
+          passwordConfirmation: 'pass'
         }
       ])
     })
@@ -200,7 +205,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true , useUnifiedTopology: true }, (e
         }
       ])
     })
-    .then(createdFeminists => console.log(`${createdFeminists.length} feminists created `))
+    .then(createdFeminists => console.log(`${'👧 '.repeat(createdFeminists.length)} feminists created `))
     .catch(err => console.log(err))
     .finally(() => mongoose.connection.close()) 
 })

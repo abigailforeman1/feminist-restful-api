@@ -18,6 +18,7 @@ class FeministShow extends React.Component {
     const feministId = this.props.match.params.id
     try {
       const res = await axios.get(`/api/feminists/${feministId}`)
+      console.log('gotdata', res.data.comments.length)
       this.setState({ feminist: res.data })
     } catch (err) {
       console.log(err)
@@ -30,7 +31,7 @@ class FeministShow extends React.Component {
 
   handleChange = e => {
     const text = e.target.value
-    console.log(text)
+    // console.log(text)
     this.setState({ text })
   }
 
@@ -38,14 +39,14 @@ class FeministShow extends React.Component {
     e.preventDefault()
     const feministId = this.props.match.params.id
     try {
-      axios.post(`/api/feminists/${feministId}/comments`, { text: this.state.text }, {
-        // headers: { Authorization: `Bearer ${Auth.getToken()}` }
+      await axios.post(`/api/feminists/${feministId}/comments`, { text: this.state.text }, { // posting the text thats saved in state to the comments in the database
+        headers: { Authorization: `Bearer ${Auth.getToken()}` }
       })
+      this.setState({ text: '' })
     } catch (err) {
       this.props.history.push('/notfound')
     }
     this.getData()
-    this.setState({ text: '' })
   }
 
   // handleClick = async (e) => {
@@ -62,7 +63,7 @@ class FeministShow extends React.Component {
     const feministId = this.props.match.params.id
     try {
       await axios.delete(`/api/feminists/${feministId}`, {
-        // headers: { Authorization: `Bearer ${Auth.getToken()}` }
+        headers: { Authorization: `Bearer ${Auth.getToken()}` }
       })
       this.props.history.push('/feminists')
     } catch (err) {
@@ -74,7 +75,7 @@ class FeministShow extends React.Component {
 
   render() {
     const { feminist, text } = this.state
-    // console.log(this.state.feminist.user)
+    console.log(this.state.text)
     if (!feminist._id) return null
 
     return (
