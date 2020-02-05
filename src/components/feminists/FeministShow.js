@@ -2,21 +2,19 @@ import React from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import Auth from '../../lib/auth'
+// import { comment } from 'postcss-selector-parser'
+
 // import MapGL, { Marker } from 'react-map-gl'
 // import 'mapbox-gl/dist/mapbox-gl.css'
 // const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN
 
 class FeministShow extends React.Component {
   state = {
-    feminist: {}
-    // comments: {
-    //   text: ''
-    // },
-    // newComment: '',
-    // errors: {}
+    feminist: {},
+    text: ''
   }
 
-  async componentDidMount() {
+  async getData() {
     const feministId = this.props.match.params.id
     try {
       const res = await axios.get(`/api/feminists/${feministId}`)
@@ -26,20 +24,45 @@ class FeministShow extends React.Component {
     }
   }
 
-  // handleSubmit = async (e) => {
-  //   e.preventDefault()
-  //   console.log('clicked')
-  // }
+  componentDidMount() {
+    this.getData()
+  }
 
-  // handleChange = e => {
-  //   this.setState({ newComment: e.target.value })
+  handleChange = e => {
+    const text = e.target.value
+    console.log(text)
+    this.setState({ text })
+  }
+
+  handleSubmit = async (e) => {
+    e.preventDefault()
+    const feministId = this.props.match.params.id
+    try {
+      axios.post(`/api/feminists/${feministId}/comments`, { text: this.state.text }, {
+        // headers: { Authorization: `Bearer ${Auth.getToken()}` }
+      })
+    } catch (err) {
+      this.props.history.push('/notfound')
+    }
+    this.getData()
+    this.setState({ text: '' })
+  }
+
+  // handleClick = async (e) => {
+  //   console.log(e.target.)
+  //   const feministId = this.props.match.params.id
+  //   try {
+  //     axios.delete(`/api/feminists/${feministId}/comments/${this.state.comment._id}`)
+  //   } catch (err) {
+  //     this.props.history.push('/notfound')
+  //   }
   // }
 
   handleDelete = async () => {
     const feministId = this.props.match.params.id
     try {
       await axios.delete(`/api/feminists/${feministId}`, {
-        headers: { Authorization: `Bearer ${Auth.getToken()}` }
+        // headers: { Authorization: `Bearer ${Auth.getToken()}` }
       })
       this.props.history.push('/feminists')
     } catch (err) {
@@ -47,11 +70,11 @@ class FeministShow extends React.Component {
     }
   }
 
-  // isOwner = () => Auth.getPayload().sub === this.state.feminist.user._id
+  isOwner = () => Auth.getPayload().sub === this.state.feminist.user
 
   render() {
-    // console.log(this.state.newComment)
-    const { feminist } = this.state
+    const { feminist, text } = this.state
+    // console.log(this.state.feminist.user)
     if (!feminist._id) return null
 
     return (
@@ -96,35 +119,49 @@ class FeministShow extends React.Component {
                   </MapGL>
                 } */}
               </div>
-              {/* {this.isOwner() &&  */}
-              {/* <h4 className="title is-4">Comments</h4> */}
-              <>
-                {/* <form onSubmit={this.handleSubmit}>
-                  <div className="control">
-                    <textarea
-                      className="textarea"
-                      placeholder="Add your comments - max 100 characters"
-                      name="text"
-                      onChange={this.handleChange}
-                      value={this.state.newComment}
-                    />
-                  </div>
-                  <button type="submit" className="button is-warning">Add comment!</button>
-                </form> */}
 
-                <Link to={`/feminists/${feminist._id}/edit`} className="button is-warning">
-                  Edit Feminist
-                </Link>
-                <button onClick={this.handleDelete} className="button is-danger">Delete Feminist</button>
+              <h4 className="title is-4">Comments</h4>
+
+              <>
+                {feminist.comments.map(comment => (
+                  <div key={comment._id}>
+                    <p>{comment.text}</p>
+                    {/* <button onClick={this.handleClick} type="submit" className="button">Delete comment</button> */}
+                  </div>
+                ))}
               </>
-              {/* }  */}
+
+              <form onSubmit={this.handleSubmit}>
+                <div className="control">
+                  <textarea
+                    className="textarea"
+                    placeholder="Add your comments - max 100 characters"
+                    name="text"
+                    onChange={this.handleChange}
+                    value={text}
+                  />
+                </div>
+                <button type="submit" className="button is-warning">Add comment!</button>
+              </form>
+
+              <hr />
+
+              {this.isOwner() &&
+                <>
+                  <Link to={`/feminists/${feminist._id}/edit`} className="button is-warning">
+                    Edit Feminist
+                  </Link>
+
+                  <button onClick={this.handleDelete} className="button is-danger">Delete Feminist</button>
+                </>
+              }
+
             </div>
           </div>
         </div>
       </section>
     )
   }
-
 }
 
 export default FeministShow
